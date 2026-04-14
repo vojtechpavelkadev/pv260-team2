@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArkTracker.Infrastructure", "ArkTracker.Infrastructure\ArkTracker.Infrastructure.csproj", "{4F32D889-3BB0-42CC-9137-BCA543B3D244}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArkTracker.Domain", "ArkTracker.Domain\ArkTracker.Domain.csproj", "{BC4737A4-556C-4D22-B556-B210ACE40CBF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArkTracker.Application", "ArkTracker.Application\ArkTracker.Application.csproj", "{1D2B3B76-D76E-4AD0-8A1C-6384D6BB0D83}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArkTracker.Cli", "ArkTracker.Cli\ArkTracker.Cli.csproj", "{4BE9E29F-03B9-44BA-92AA-49505E1B54AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArkTracker.Api", "ArkTracker.Api\ArkTracker.Api.csproj", "{F8D35EF4-B58B-4A70-A313-B25E35E676EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArkTracker.UnitTest", "ArkTracker.UnitTest\ArkTracker.UnitTest.csproj", "{BFC9E722-993E-49B2-944E-A5DE19B73324}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4F32D889-3BB0-42CC-9137-BCA543B3D244}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F32D889-3BB0-42CC-9137-BCA543B3D244}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F32D889-3BB0-42CC-9137-BCA543B3D244}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F32D889-3BB0-42CC-9137-BCA543B3D244}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC4737A4-556C-4D22-B556-B210ACE40CBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC4737A4-556C-4D22-B556-B210ACE40CBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC4737A4-556C-4D22-B556-B210ACE40CBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC4737A4-556C-4D22-B556-B210ACE40CBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D2B3B76-D76E-4AD0-8A1C-6384D6BB0D83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D2B3B76-D76E-4AD0-8A1C-6384D6BB0D83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D2B3B76-D76E-4AD0-8A1C-6384D6BB0D83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D2B3B76-D76E-4AD0-8A1C-6384D6BB0D83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BE9E29F-03B9-44BA-92AA-49505E1B54AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BE9E29F-03B9-44BA-92AA-49505E1B54AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BE9E29F-03B9-44BA-92AA-49505E1B54AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BE9E29F-03B9-44BA-92AA-49505E1B54AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8D35EF4-B58B-4A70-A313-B25E35E676EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8D35EF4-B58B-4A70-A313-B25E35E676EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8D35EF4-B58B-4A70-A313-B25E35E676EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8D35EF4-B58B-4A70-A313-B25E35E676EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFC9E722-993E-49B2-944E-A5DE19B73324}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFC9E722-993E-49B2-944E-A5DE19B73324}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFC9E722-993E-49B2-944E-A5DE19B73324}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFC9E722-993E-49B2-944E-A5DE19B73324}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
