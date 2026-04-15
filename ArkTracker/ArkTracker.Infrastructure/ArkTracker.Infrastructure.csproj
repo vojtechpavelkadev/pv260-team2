@@ -1,6 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\ArkTracker.Application\ArkTracker.Application.csproj" />
       <ProjectReference Include="..\ArkTracker.Domain\ArkTracker.Domain.csproj" />
     </ItemGroup>

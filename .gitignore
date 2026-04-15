@@ -131,3 +131,33 @@ $RECYCLE.BIN/
 .DS_Store
 
 _NCrunch*
+
+## .NET Core / Visual Studio
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Visual Studio dočasné soubory
+.vs/
+.vscode/
+.idea/
+
+## User Secrets (i kdyby ležely u projektu, raději ignorovat)
+secrets.json
+.microsoft.dotnet.usersecrets.id
+
+## Operační systém
+Thumbs.db
+.DS_Store
+
+## Publikované složky
+[Pp]ublish/
+
+## Logy
+*.log
