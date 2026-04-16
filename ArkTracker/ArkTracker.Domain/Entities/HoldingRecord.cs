@@ -11,5 +11,6 @@
         public long? Shares { get; set; }
         public decimal? MarketValue { get; set; }
         public decimal? WeightPercentage { get; set; }
+        public DateTime IngestedAtUtc { get; set; }
     }
 }

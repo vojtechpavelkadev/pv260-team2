@@ -11,6 +11,7 @@ namespace ArkTracker.Infrastructure.Persistence
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             _ = modelBuilder.Entity<HoldingRecord>().HasIndex(h => h.Date);
+            _ = modelBuilder.Entity<HoldingRecord>().HasIndex(h => h.IngestedAtUtc);
             _ = modelBuilder.Entity<User>().HasIndex(u => u.Username).IsUnique();
         }
     }
