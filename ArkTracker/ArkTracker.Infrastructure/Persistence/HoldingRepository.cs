@@ -1,5 +1,6 @@
 ﻿using ArkTracker.Application.Interfaces;
 using ArkTracker.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace ArkTracker.Infrastructure.Persistence
 {
@@ -11,14 +12,21 @@ namespace ArkTracker.Infrastructure.Persistence
             _ = await context.SaveChangesAsync();
         }
 
-        public Task<IEnumerable<DateTime>> GetAvailableDatesAsync()
+        public async Task<IEnumerable<DateTime>> GetAvailableDatesAsync()
         {
-            throw new NotImplementedException();
+            return await context.Holdings
+                    .Where(x => x.Date.HasValue)
+                    .Select(x => x.Date!.Value.Date)
+                    .Distinct()
+                    .OrderByDescending(d => d)
+                    .ToListAsync();
         }
 
         public async Task<IEnumerable<HoldingRecord>> GetByDateAsync(DateTime date)
         {
-            throw new NotImplementedException();
+            return await context.Holdings
+                .Where(x => x.Date.HasValue && x.Date.Value.Date == date.Date)
+                .ToListAsync();
         }
     }
 }
