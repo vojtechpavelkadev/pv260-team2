@@ -14,7 +14,7 @@ var configuration = new ConfigurationBuilder()
 var services = new ServiceCollection();
 services.AddHttpClient<IArkApiClient, ArkApiClient>(client => 
 {
-    var baseUrl = configuration["ArkApi:BaseUrl"] ?? "http://localhost:5185/api/holdings/";
+    var baseUrl = configuration["ArkApi:BaseUrl"] ?? "http://localhost:5185/api/";
     client.BaseAddress = new Uri(baseUrl);
 });
 
@@ -26,6 +26,39 @@ ComparisonResult? lastResult = null;
 string lastTitle = "Latest Portfolio Changes (LTM)";
 
 Display.ShowWelcomeScreen();
+
+bool authenticated = false;
+while (!authenticated)
+{
+    var (username, password) = Display.PromptForLogin();
+    
+    // Allow exit if username is empty
+    if (string.IsNullOrWhiteSpace(username))
+    {
+        AnsiConsole.MarkupLine("[grey]Exiting...[/]");
+        return;
+    }
+
+    try 
+    {
+        var token = await apiClient.LoginAsync(username, password);
+        if (token != null)
+        {
+            authenticated = true;
+            AnsiConsole.MarkupLine("[green]Authentication successful![/]");
+            await Task.Delay(1000);
+        }
+        else
+        {
+            Display.ShowError("Invalid credentials. Please try again.");
+        }
+    }
+    catch (Exception ex)
+    {
+        Display.ShowError($"Login failed: {ex.Message}");
+        AnsiConsole.MarkupLine("[grey]Please ensure the API is running and try again, or press Enter on username to exit.[/]");
+    }
+}
 
 try
 {

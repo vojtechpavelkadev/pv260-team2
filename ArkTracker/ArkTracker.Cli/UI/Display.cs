@@ -19,11 +19,8 @@ public static class Display
             new Text("\n\n"),
             new Align(new Text("WELCOME TO THE FUTURE OF ARK INVESTING", new Style(Color.Grey, decoration: Decoration.Italic)), HorizontalAlignment.Center),
             new Text("\n"),
-            new Align(new Markup("[[[bold cyan] PRESS ENTER TO INITIALIZE [/]]]"), HorizontalAlignment.Center),
-            new Text("\n\n\n"),
-            new Align(new Text("SECURE AUTHENTICATION SYSTEM", new Style(Color.Grey27)).Centered(), HorizontalAlignment.Center),
-            new Align(new Text("[AUTHENTICATION COMING SOON]", new Style(Color.Yellow)).Centered(), HorizontalAlignment.Center),
-            new Text("\n"),
+            new Align(new Markup("[[[bold cyan] PRESS ENTER TO LOG IN [/]]]"), HorizontalAlignment.Center),
+            new Text("\n\n"),
             new Rule().RuleStyle("cyan").Centered()
         );
 
@@ -271,5 +268,23 @@ public static class Display
             .Padding(1, 1, 1, 1);
         
         AnsiConsole.Write(panel);
+    }
+
+    public static (string username, string password) PromptForLogin()
+    {
+        var username = AnsiConsole.Prompt(
+            new TextPrompt<string>("Enter [cyan]username[/] (leave empty to exit):")
+                .PromptStyle("cyan")
+                .AllowEmpty());
+        
+        if (string.IsNullOrWhiteSpace(username))
+            return (string.Empty, string.Empty);
+
+        var password = AnsiConsole.Prompt(
+            new TextPrompt<string>("Enter [cyan]password[/]:")
+                .PromptStyle("cyan")
+                .Secret());
+                
+        return (username, password);
     }
 }

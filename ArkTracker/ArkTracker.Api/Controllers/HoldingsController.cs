@@ -2,10 +2,12 @@ using ArkTracker.Application;
 using ArkTracker.Application.CompareHoldings;
 using ArkTracker.Application.GetAvailableHoldingDates;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArkTracker.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/holdings")]
 public class HoldingsController : ControllerBase

@@ -6,6 +6,17 @@ public static class DbSeeder
 {
     public static void Seed(AppDbContext db)
     {
+        if (!db.Users.Any())
+        {
+            db.Users.Add(new User
+            {
+                Id = Guid.NewGuid(),
+                Username = "test",
+                PasswordHash = Security.PasswordHasher.HashPassword("password123")
+            });
+            db.SaveChanges();
+        }
+
         if (db.Holdings.Any())
             return;
 
