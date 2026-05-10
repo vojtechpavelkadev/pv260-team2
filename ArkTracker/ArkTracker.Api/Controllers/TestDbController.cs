@@ -1,9 +1,11 @@
-﻿using ArkTracker.Infrastructure.Persistence;
+using ArkTracker.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace ArkTracker.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/test-db")]
     public class TestDbController(AppDbContext context) : ControllerBase
