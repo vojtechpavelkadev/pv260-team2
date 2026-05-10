@@ -16,11 +16,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-string connectionName = builder.Environment.IsDevelopment()
-    ? "DefaultConnection"
-    : "NeonDb";
+string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-string? connectionString = builder.Configuration.GetConnectionString(connectionName);
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddScoped<IHoldingRepository, HoldingRepository>();
 builder.Services.AddHttpClient<IArkScraperService, ArkScraperService>();

@@ -5,9 +5,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 
+var environmentName = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ??
+    Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ??
+    "Production";
+
 var configuration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{environmentName}.json", optional: true, reloadOnChange: true)
     .AddEnvironmentVariables()
     .Build();
 
