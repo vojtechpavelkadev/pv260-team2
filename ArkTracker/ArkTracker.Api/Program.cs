@@ -86,7 +86,11 @@ if (app.Environment.IsDevelopment())
 using (IServiceScope scope = app.Services.CreateScope())
 {
     AppDbContext db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await db.Database.MigrateAsync();
+    
+    if (app.Environment.EnvironmentName != "Testing")
+    {
+        await db.Database.MigrateAsync();
+    }
     
     if (app.Environment.IsDevelopment())
     {
@@ -121,3 +125,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.Run();
+
+public partial class Program { }
