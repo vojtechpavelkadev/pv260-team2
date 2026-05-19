@@ -8,12 +8,10 @@ public static class DbSeeder
     {
         if (!db.Users.Any())
         {
-            db.Users.Add(new User
-            {
-                Id = Guid.NewGuid(),
-                Username = "test",
-                PasswordHash = Security.PasswordHasher.HashPassword("password123")
-            });
+            db.Users.Add(new User(
+                "test",
+                Security.PasswordHasher.HashPassword("password123")
+            ));
             db.SaveChanges();
         }
 
@@ -24,16 +22,16 @@ public static class DbSeeder
 
         void Add(string date, string ticker, string company, long shares, decimal weight)
         {
-            data.Add(new HoldingRecord
-            {
-                Id = Guid.NewGuid(),
-                Date = DateTime.Parse(date).ToUniversalTime(),
-                Fund = "ARKK",
-                Ticker = ticker,
-                Company = company,
-                Shares = shares,
-                WeightPercentage = weight
-            });
+            data.Add(new HoldingRecord(
+                DateTime.Parse(date).ToUniversalTime(),
+                "ARKK",
+                company,
+                ticker,
+                null,
+                shares,
+                null,
+                weight
+            ));
         }
 
         // DAY 1 - 2026-04-16

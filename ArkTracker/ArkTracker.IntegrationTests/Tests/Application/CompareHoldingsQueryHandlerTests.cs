@@ -51,15 +51,15 @@ namespace ArkTracker.IntegrationTests.Tests.Application
         public async Task Handle_WithSpecificDates_ReturnsCorrectDeltas()
         {
             // Arrange
-            var date1 = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            var date2 = new DateTime(2023, 1, 2, 0, 0, 0, DateTimeKind.Utc);
+            var date1 = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var date2 = new DateTime(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc);
 
             _dbContext.Holdings.AddRange(
-                new HoldingRecord { Date = date1, Ticker = "AAPL", Shares = 100, WeightPercentage = 1.0m, Company = "Apple" },
-                new HoldingRecord { Date = date1, Ticker = "TSLA", Shares = 50, WeightPercentage = 0.5m, Company = "Tesla" },
-                new HoldingRecord { Date = date2, Ticker = "AAPL", Shares = 150, WeightPercentage = 1.5m, Company = "Apple" }, // Increased
-                new HoldingRecord { Date = date2, Ticker = "TSLA", Shares = 20, WeightPercentage = 0.2m, Company = "Tesla" }, // Reduced
-                new HoldingRecord { Date = date2, Ticker = "MSFT", Shares = 100, WeightPercentage = 1.0m, Company = "Microsoft" } // New
+                new HoldingRecord(date1, null, "Apple", "AAPL", null, 100, null, 1.0m),
+                new HoldingRecord(date1, null, "Tesla", "TSLA", null, 50, null, 0.5m),
+                new HoldingRecord(date2, null, "Apple", "AAPL", null, 150, null, 1.5m), // Increased
+                new HoldingRecord(date2, null, "Tesla", "TSLA", null, 20, null, 0.2m), // Reduced
+                new HoldingRecord(date2, null, "Microsoft", "MSFT", null, 100, null, 1.0m) // New
             );
             await _dbContext.SaveChangesAsync();
 

@@ -39,10 +39,10 @@ namespace ArkTracker.IntegrationTests.Tests.Application
         {
             // Arrange
             _dbContext.Holdings.AddRange(
-                new HoldingRecord { Date = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
-                new HoldingRecord { Date = new DateTime(2023, 1, 3, 0, 0, 0, DateTimeKind.Utc) },
-                new HoldingRecord { Date = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
-                new HoldingRecord { Date = new DateTime(2023, 1, 2, 0, 0, 0, DateTimeKind.Utc) }
+                new HoldingRecord(new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc), null, null, null, null, null, null, null),
+                new HoldingRecord(new DateTime(2026, 1, 3, 0, 0, 0, DateTimeKind.Utc), null, null, null, null, null, null, null),
+                new HoldingRecord(new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc), null, null, null, null, null, null, null),
+                new HoldingRecord(new DateTime(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc), null, null, null, null, null, null, null)
             );
             await _dbContext.SaveChangesAsync();
 
@@ -55,9 +55,9 @@ namespace ArkTracker.IntegrationTests.Tests.Application
             result.Should().NotBeNull();
             result.Dates.Should().HaveCount(3);
             result.Dates.Should().BeInDescendingOrder();
-            result.Dates.ElementAt(0).Should().Be(new DateTime(2023, 1, 3, 0, 0, 0, DateTimeKind.Utc));
-            result.Dates.ElementAt(1).Should().Be(new DateTime(2023, 1, 2, 0, 0, 0, DateTimeKind.Utc));
-            result.Dates.ElementAt(2).Should().Be(new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+            result.Dates.ElementAt(0).Should().Be(new DateTime(2026, 1, 3, 0, 0, 0, DateTimeKind.Utc));
+            result.Dates.ElementAt(1).Should().Be(new DateTime(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc));
+            result.Dates.ElementAt(2).Should().Be(new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc));
         }
     }
 }

@@ -7,6 +7,7 @@ using ArkTracker.IntegrationTests.Helpers;
 using ArkTracker.Application.CompareHoldings;
 using ArkTracker.Application.GetAvailableHoldingDates;
 using ArkTracker.Domain.Entities;
+using ArkTracker.Domain.ValueObjects;
 using ArkTracker.Infrastructure.Persistence;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -59,7 +60,7 @@ namespace ArkTracker.IntegrationTests.Tests.API
             using (var scope = _factory.Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                dbContext.Holdings.Add(new HoldingRecord { Date = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc) });
+                dbContext.Holdings.Add(new HoldingRecord(new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc), null, null, null, null, null, null, null));
                 await dbContext.SaveChangesAsync();
             }
 
@@ -80,17 +81,17 @@ namespace ArkTracker.IntegrationTests.Tests.API
             using (var scope = _factory.Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                var date1 = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-                var date2 = new DateTime(2023, 1, 2, 0, 0, 0, DateTimeKind.Utc);
+                var date1 = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                var date2 = new DateTime(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc);
 
                 dbContext.Holdings.AddRange(
-                    new HoldingRecord { Date = date1, Ticker = "AAPL", Shares = 100 },
-                    new HoldingRecord { Date = date2, Ticker = "AAPL", Shares = 150 }
+                    new HoldingRecord(date1, null, null, "AAPL", null, 100, null, null),
+                    new HoldingRecord(date2, null, null, "AAPL", null, 150, null, null)
                 );
                 await dbContext.SaveChangesAsync();
             }
 
-            var url = $"/api/holdings/compare?from=2023-01-01T00:00:00Z&to=2023-01-02T00:00:00Z";
+            var url = $"/api/holdings/compare?from=2026-01-01T00:00:00Z&to=2026-01-02T00:00:00Z";
 
             // Act
             var response = await _client.GetAsync(url);

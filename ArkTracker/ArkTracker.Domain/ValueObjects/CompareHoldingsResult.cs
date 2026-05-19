@@ -1,4 +1,4 @@
-namespace ArkTracker.Application.CompareHoldings;
+namespace ArkTracker.Domain.ValueObjects;
 
 public class CompareHoldingsResult
 {

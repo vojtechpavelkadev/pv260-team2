@@ -1,5 +1,6 @@
 using ArkTracker.Application.CompareHoldings;
 using ArkTracker.Application.GetAvailableHoldingDates;
+using ArkTracker.Domain.ValueObjects;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,6 +1,7 @@
 using ArkTracker.Application.CompareHoldings;
 using ArkTracker.Application.GetAvailableHoldingDates;
 using ArkTracker.Domain.Entities;
+using ArkTracker.Domain.ValueObjects;
 using ArkTracker.Infrastructure.Persistence;
 using ArkTracker.IntegrationTests.Fixtures;
 using ArkTracker.IntegrationTests.Helpers;
@@ -34,12 +35,12 @@ namespace ArkTracker.IntegrationTests.Tests.E2E
             _ = await dbContext.Database.EnsureDeletedAsync();
             _ = await dbContext.Database.EnsureCreatedAsync();
 
-            DateTime date1 = new(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            DateTime date2 = new(2023, 1, 2, 0, 0, 0, DateTimeKind.Utc);
+            DateTime date1 = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            DateTime date2 = new(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc);
 
             dbContext.Holdings.AddRange(
-                new HoldingRecord { Date = date1, Ticker = "MSFT", Shares = 100 },
-                new HoldingRecord { Date = date2, Ticker = "MSFT", Shares = 200 }
+                new HoldingRecord(date1, null, null, "MSFT", null, 100, null, null),
+                new HoldingRecord(date2, null, null, "MSFT", null, 200, null, null)
             );
             _ = await dbContext.SaveChangesAsync();
         }
@@ -68,8 +69,8 @@ namespace ArkTracker.IntegrationTests.Tests.E2E
             _ = datesResult.Should().NotBeNull();
             _ = datesResult!.Dates.Should().HaveCount(2);
 
-            DateTime toDate = datesResult.Dates.ElementAt(0); // 2023-01-02
-            DateTime fromDate = datesResult.Dates.ElementAt(1); // 2023-01-01
+            DateTime toDate = datesResult.Dates.ElementAt(0); // 2026-01-02
+            DateTime fromDate = datesResult.Dates.ElementAt(1); // 2026-01-01
 
             // Step 4: Compare Holdings using fetched dates
             string url = $"/api/holdings/compare?from={fromDate:yyyy-MM-ddTHH:mm:ssZ}&to={toDate:yyyy-MM-ddTHH:mm:ssZ}";
