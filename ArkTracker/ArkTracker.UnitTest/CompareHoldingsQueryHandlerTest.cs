@@ -1,9 +1,8 @@
-using ArkTracker.Application;
 using ArkTracker.Application.CompareHoldings;
 using ArkTracker.Application.Interfaces;
 using ArkTracker.Domain.Entities;
-using Moq;
 using FluentAssertions;
+using Moq;
 namespace ArkTracker.UnitTest;
 
 public class CompareHoldingsQueryHandlerTests
@@ -16,153 +15,153 @@ public class CompareHoldingsQueryHandlerTests
         _repoMock = new Mock<IHoldingRepository>();
         _handler = new CompareHoldingsQueryHandler(_repoMock.Object);
     }
-    
+
     [Fact]
     public async Task Should_compare_holdings_when_dates_are_provided()
     {
-        var from = new DateTime(2026, 04, 19);
-        var to = new DateTime(2026, 04, 20);
+        DateTime from = new(2026, 04, 19);
+        DateTime to = new(2026, 04, 20);
 
-        _repoMock.Setup(r => r.GetByDateAsync(from))
-            .ReturnsAsync(new List<HoldingRecord>
-            {
+        _ = _repoMock.Setup(r => r.GetByDateAsync(from))
+            .ReturnsAsync(
+            [
                 new() { Ticker = "TSLA", Company = "Tesla", Shares = 100, WeightPercentage = 5 }
-            });
+            ]);
 
-        _repoMock.Setup(r => r.GetByDateAsync(to))
-            .ReturnsAsync(new List<HoldingRecord>
-            {
+        _ = _repoMock.Setup(r => r.GetByDateAsync(to))
+            .ReturnsAsync(
+            [
                 new() { Ticker = "TSLA", Company = "Tesla", Shares = 150, WeightPercentage = 6 }
-            });
+            ]);
 
-        var query = new CompareHoldingsQuery(from, to);
+        CompareHoldingsQuery query = new(from, to);
 
-        var result = await _handler.Handle(query, CancellationToken.None);
+        CompareHoldingsResult result = await _handler.Handle(query, CancellationToken.None);
 
-        result.Increased.Should().HaveCount(1);
-        result.Reduced.Should().BeEmpty();
-        result.NewPositions.Should().BeEmpty();
+        _ = result.Increased.Should().HaveCount(1);
+        _ = result.Reduced.Should().BeEmpty();
+        _ = result.NewPositions.Should().BeEmpty();
     }
-    
+
     [Fact]
     public async Task Should_detect_new_position()
     {
-        var from = new DateTime(2026, 04, 19);
-        var to = new DateTime(2026, 04, 20);
+        DateTime from = new(2026, 04, 19);
+        DateTime to = new(2026, 04, 20);
 
-        _repoMock.Setup(r => r.GetByDateAsync(from))
-            .ReturnsAsync(new List<HoldingRecord>());
+        _ = _repoMock.Setup(r => r.GetByDateAsync(from))
+            .ReturnsAsync([]);
 
-        _repoMock.Setup(r => r.GetByDateAsync(to))
-            .ReturnsAsync(new List<HoldingRecord>
-            {
+        _ = _repoMock.Setup(r => r.GetByDateAsync(to))
+            .ReturnsAsync(
+            [
                 new() { Ticker = "NVDA", Company = "Nvidia", Shares = 200 }
-            });
+            ]);
 
-        var result = await _handler.Handle(
+        CompareHoldingsResult result = await _handler.Handle(
             new CompareHoldingsQuery(from, to),
             CancellationToken.None);
 
-        result.NewPositions.Should().ContainSingle();
+        _ = result.NewPositions.Should().ContainSingle();
     }
-    
+
     [Fact]
     public async Task Should_detect_reduced_position()
     {
-        var from = new DateTime(2026, 04, 19);
-        var to = new DateTime(2026, 04, 20);
+        DateTime from = new(2026, 04, 19);
+        DateTime to = new(2026, 04, 20);
 
-        _repoMock.Setup(r => r.GetByDateAsync(from))
-            .ReturnsAsync(new List<HoldingRecord>
-            {
+        _ = _repoMock.Setup(r => r.GetByDateAsync(from))
+            .ReturnsAsync(
+            [
                 new() { Ticker = "TSLA", Company = "Tesla", Shares = 200 }
-            });
+            ]);
 
-        _repoMock.Setup(r => r.GetByDateAsync(to))
-            .ReturnsAsync(new List<HoldingRecord>
-            {
+        _ = _repoMock.Setup(r => r.GetByDateAsync(to))
+            .ReturnsAsync(
+            [
                 new() { Ticker = "TSLA", Company = "Tesla", Shares = 50 }
-            });
+            ]);
 
-        var result = await _handler.Handle(
+        CompareHoldingsResult result = await _handler.Handle(
             new CompareHoldingsQuery(from, to),
             CancellationToken.None);
 
-        result.Reduced.Should().ContainSingle();
+        _ = result.Reduced.Should().ContainSingle();
     }
     [Fact]
     public async Task Should_detect_full_exit_as_reduced_to_zero()
     {
-        var from = new DateTime(2026, 04, 19);
-        var to = new DateTime(2026, 04, 20);
+        DateTime from = new(2026, 04, 19);
+        DateTime to = new(2026, 04, 20);
 
-        _repoMock.Setup(r => r.GetByDateAsync(from))
-            .ReturnsAsync(new List<HoldingRecord>
-            {
+        _ = _repoMock.Setup(r => r.GetByDateAsync(from))
+            .ReturnsAsync(
+            [
                 new() { Ticker = "TSLA", Company = "Tesla", Shares = 100 }
-            });
+            ]);
 
-        _repoMock.Setup(r => r.GetByDateAsync(to))
-            .ReturnsAsync(new List<HoldingRecord>());
+        _ = _repoMock.Setup(r => r.GetByDateAsync(to))
+            .ReturnsAsync([]);
 
-        var result = await _handler.Handle(
+        CompareHoldingsResult result = await _handler.Handle(
             new CompareHoldingsQuery(from, to),
             CancellationToken.None);
 
-        result.Reduced.Should().ContainSingle();
+        _ = result.Reduced.Should().ContainSingle();
     }
-    
+
     [Fact]
     public async Task Should_use_latest_two_dates_when_null()
     {
-        _repoMock.Setup(r => r.GetAvailableDatesAsync())
-            .ReturnsAsync(new List<DateTime>
-            {
+        _ = _repoMock.Setup(r => r.GetAvailableDatesAsync())
+            .ReturnsAsync(
+            [
                 new DateTime(2026, 04, 20),
                 new DateTime(2026, 04, 19),
                 new DateTime(2026, 04, 18)
-            });
+            ]);
 
-        _repoMock.Setup(r => r.GetByDateAsync(It.IsAny<DateTime>()))
-            .ReturnsAsync(new List<HoldingRecord>());
+        _ = _repoMock.Setup(r => r.GetByDateAsync(It.IsAny<DateTime>()))
+            .ReturnsAsync([]);
 
-        var result = await _handler.Handle(
+        CompareHoldingsResult result = await _handler.Handle(
             new CompareHoldingsQuery(null, null),
             CancellationToken.None);
-        
-        
+
+
         _repoMock.Verify(r => r.GetByDateAsync(new DateTime(2026, 04, 19)), Times.Once);
         _repoMock.Verify(r => r.GetByDateAsync(new DateTime(2026, 04, 20)), Times.Once);
-        result.Should().NotBeNull();
+        _ = result.Should().NotBeNull();
     }
     [Fact]
     public async Task Should_throw_when_less_than_two_dates_exist()
     {
-        _repoMock.Setup(r => r.GetAvailableDatesAsync())
-            .ReturnsAsync(new List<DateTime>
-            {
+        _ = _repoMock.Setup(r => r.GetAvailableDatesAsync())
+            .ReturnsAsync(
+            [
                 new DateTime(2026, 04, 20)
-            });
+            ]);
 
-        await Assert.ThrowsAsync<Exception>(() =>
+        _ = await Assert.ThrowsAsync<Exception>(() =>
             _handler.Handle(new CompareHoldingsQuery(null, null), CancellationToken.None));
     }
-    
+
     [Fact]
     public async Task Should_select_latest_two_dates_correctly_regardless_of_order()
     {
-        _repoMock.Setup(r => r.GetAvailableDatesAsync())
-            .ReturnsAsync(new List<DateTime>
-            {
+        _ = _repoMock.Setup(r => r.GetAvailableDatesAsync())
+            .ReturnsAsync(
+            [
                 new DateTime(2026, 04, 18),
                 new DateTime(2026, 04, 20),
                 new DateTime(2026, 04, 19)
-            });
+            ]);
 
-        _repoMock.Setup(r => r.GetByDateAsync(It.IsAny<DateTime>()))
-            .ReturnsAsync(new List<HoldingRecord>());
+        _ = _repoMock.Setup(r => r.GetByDateAsync(It.IsAny<DateTime>()))
+            .ReturnsAsync([]);
 
-        await _handler.Handle(new CompareHoldingsQuery(null, null), CancellationToken.None);
+        _ = await _handler.Handle(new CompareHoldingsQuery(null, null), CancellationToken.None);
 
         _repoMock.Verify(r => r.GetByDateAsync(new DateTime(2026, 04, 19)), Times.Once);
         _repoMock.Verify(r => r.GetByDateAsync(new DateTime(2026, 04, 20)), Times.Once);
@@ -170,21 +169,21 @@ public class CompareHoldingsQueryHandlerTests
     [Fact]
     public async Task Should_return_empty_changes_when_portfolio_is_identical()
     {
-        var from = new DateTime(2026, 04, 19);
-        var to = new DateTime(2026, 04, 20);
+        DateTime from = new(2026, 04, 19);
+        DateTime to = new(2026, 04, 20);
 
-        var holdings = new List<HoldingRecord>
-        {
+        List<HoldingRecord> holdings =
+        [
             new() { Ticker = "TSLA", Shares = 100 }
-        };
+        ];
 
-        _repoMock.Setup(r => r.GetByDateAsync(from)).ReturnsAsync(holdings);
-        _repoMock.Setup(r => r.GetByDateAsync(to)).ReturnsAsync(holdings);
+        _ = _repoMock.Setup(r => r.GetByDateAsync(from)).ReturnsAsync(holdings);
+        _ = _repoMock.Setup(r => r.GetByDateAsync(to)).ReturnsAsync(holdings);
 
-        var result = await _handler.Handle(new CompareHoldingsQuery(from, to), CancellationToken.None);
+        CompareHoldingsResult result = await _handler.Handle(new CompareHoldingsQuery(from, to), CancellationToken.None);
 
-        result.NewPositions.Should().BeEmpty();
-        result.Increased.Should().BeEmpty();
-        result.Reduced.Should().BeEmpty();
+        _ = result.NewPositions.Should().BeEmpty();
+        _ = result.Increased.Should().BeEmpty();
+        _ = result.Reduced.Should().BeEmpty();
     }
 }

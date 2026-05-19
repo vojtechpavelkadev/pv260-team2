@@ -6,13 +6,13 @@ using ArkTracker.Application.Interfaces;
 using ArkTracker.Infrastructure.Persistence;
 using ArkTracker.Infrastructure.Services;
 using FluentValidation;
+using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Quartz;
 using Scalar.AspNetCore;
-using MediatR;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -28,8 +28,8 @@ builder.Services.AddQuartz(q =>
 {
     JobKey jobKey = new("ArkHoldingsIngestionJob");
 
-    q.AddJob<ArkHoldingsIngestionJob>(opts => opts.WithIdentity(jobKey));
-    q.AddTrigger(opts => opts
+    _ = q.AddJob<ArkHoldingsIngestionJob>(opts => opts.WithIdentity(jobKey));
+    _ = q.AddTrigger(opts => opts
         .ForJob(jobKey)
         .WithIdentity("ArkHoldingsIngestionJob-trigger")
         .WithCronSchedule(ingestionCron));
@@ -41,9 +41,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
-var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is missing from configuration.");
-var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT Issuer is missing from configuration.");
-var jwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new InvalidOperationException("JWT Audience is missing from configuration.");
+string jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is missing from configuration.");
+string jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT Issuer is missing from configuration.");
+string jwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new InvalidOperationException("JWT Audience is missing from configuration.");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -64,8 +64,8 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddMediatR(cfg =>
 {
-    cfg.RegisterServicesFromAssembly(typeof(CompareHoldingsQueryHandler).Assembly);
-    cfg.RegisterServicesFromAssembly(typeof(GetAvailableHoldingDatesQueryHandler).Assembly);
+    _ = cfg.RegisterServicesFromAssembly(typeof(CompareHoldingsQueryHandler).Assembly);
+    _ = cfg.RegisterServicesFromAssembly(typeof(GetAvailableHoldingDatesQueryHandler).Assembly);
 });
 
 builder.Services.AddValidatorsFromAssemblyContaining<CompareHoldingsQuery>();
@@ -86,12 +86,12 @@ if (app.Environment.IsDevelopment())
 using (IServiceScope scope = app.Services.CreateScope())
 {
     AppDbContext db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    
+
     if (app.Environment.EnvironmentName != "Testing")
     {
         await db.Database.MigrateAsync();
     }
-    
+
     if (app.Environment.IsDevelopment())
     {
         DbSeeder.Seed(db);
@@ -104,7 +104,7 @@ app.UseExceptionHandler(errorApp =>
     {
         context.Response.ContentType = "application/json";
 
-        var exception = context.Features
+        Exception? exception = context.Features
             .Get<IExceptionHandlerFeature>()?.Error;
 
         context.Response.StatusCode = exception switch

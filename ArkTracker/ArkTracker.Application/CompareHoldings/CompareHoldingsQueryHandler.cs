@@ -24,15 +24,17 @@ public class CompareHoldingsQueryHandler
 
         if (request.From == null || request.To == null)
         {
-            var dates = await _repository.GetAvailableDatesAsync();
+            IEnumerable<DateTime> dates = await _repository.GetAvailableDatesAsync();
 
-            var latestTwo = dates
+            List<DateTime> latestTwo = dates
                 .OrderByDescending(d => d)
                 .Take(NumberOfDatesToCompare)
                 .ToList();
 
             if (latestTwo.Count < NumberOfDatesToCompare)
+            {
                 throw new Exception("Not enough data to compare.");
+            }
 
             from = latestTwo[1];
             to = latestTwo[0];
@@ -43,8 +45,8 @@ public class CompareHoldingsQueryHandler
             to = request.To.Value;
         }
 
-        var oldList = await _repository.GetByDateAsync(from);
-        var newList = await _repository.GetByDateAsync(to);
+        IEnumerable<HoldingRecord> oldList = await _repository.GetByDateAsync(from);
+        IEnumerable<HoldingRecord> newList = await _repository.GetByDateAsync(to);
 
         return Compare(oldList, newList);
     }
@@ -53,10 +55,10 @@ public class CompareHoldingsQueryHandler
         IEnumerable<HoldingRecord> oldList,
         IEnumerable<HoldingRecord> newList)
     {
-        var result = new CompareHoldingsResult();
+        CompareHoldingsResult result = new();
 
-        var oldHoldingsDict = ToHoldingDictionary(oldList);
-        var newHoldingsDict = ToHoldingDictionary(newList);
+        Dictionary<string, HoldingRecord> oldHoldingsDict = ToHoldingDictionary(oldList);
+        Dictionary<string, HoldingRecord> newHoldingsDict = ToHoldingDictionary(newList);
 
         AddNewPositions(result, oldHoldingsDict, newHoldingsDict);
         AddIncreasedPositions(result, oldHoldingsDict, newHoldingsDict);
@@ -75,9 +77,9 @@ public class CompareHoldingsQueryHandler
         Dictionary<string, HoldingRecord> oldDict,
         Dictionary<string, HoldingRecord> newDict)
     {
-        foreach (var key in newDict.Keys.Except(oldDict.Keys))
+        foreach (string? key in newDict.Keys.Except(oldDict.Keys))
         {
-            var h = newDict[key];
+            HoldingRecord h = newDict[key];
 
             result.NewPositions.Add(new SimpleHolding
             {
@@ -93,13 +95,13 @@ public class CompareHoldingsQueryHandler
         Dictionary<string, HoldingRecord> oldDict,
         Dictionary<string, HoldingRecord> newDict)
     {
-        foreach (var key in newDict.Keys.Intersect(oldDict.Keys))
+        foreach (string? key in newDict.Keys.Intersect(oldDict.Keys))
         {
-            var oldH = oldDict[key];
-            var newH = newDict[key];
+            HoldingRecord oldH = oldDict[key];
+            HoldingRecord newH = newDict[key];
 
-            var oldShares = oldH.Shares ?? 0;
-            var newShares = newH.Shares ?? 0;
+            long oldShares = oldH.Shares ?? 0;
+            long newShares = newH.Shares ?? 0;
 
             if (newShares > oldShares)
             {
@@ -119,18 +121,18 @@ public class CompareHoldingsQueryHandler
         Dictionary<string, HoldingRecord> oldDict,
         Dictionary<string, HoldingRecord> newDict)
     {
-        foreach (var key in oldDict.Keys)
+        foreach (string key in oldDict.Keys)
         {
-            var oldH = oldDict[key];
-            var oldShares = oldH.Shares ?? 0;
+            HoldingRecord oldH = oldDict[key];
+            long oldShares = oldH.Shares ?? 0;
 
-            if (!newDict.TryGetValue(key, out var newH))
+            if (!newDict.TryGetValue(key, out HoldingRecord? newH))
             {
                 result.Reduced.Add(CreateReduced(oldH, oldShares, 0, 0));
                 continue;
             }
 
-            var newShares = newH.Shares ?? 0;
+            long newShares = newH.Shares ?? 0;
 
             if (newShares < oldShares)
             {
@@ -153,5 +155,5 @@ public class CompareHoldingsQueryHandler
             NewWeight = newWeight
         };
     }
-    
+
 }

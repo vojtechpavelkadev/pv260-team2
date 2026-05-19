@@ -1,6 +1,7 @@
 using ArkTracker.Cli.Models;
 using Spectre.Console;
 using Spectre.Console.Rendering;
+using System.Diagnostics;
 
 namespace ArkTracker.Cli.UI;
 
@@ -9,10 +10,10 @@ public static class Display
     public static void ShowWelcomeScreen()
     {
         AnsiConsole.Clear();
-        
-        var figlet = new FigletText("ARK TRACKER").Centered().Color(Color.Cyan1);
-        
-        var content = new Rows(
+
+        FigletText figlet = new FigletText("ARK TRACKER").Centered().Color(Color.Cyan1);
+
+        Rows content = new(
             new Rule().RuleStyle("cyan").Centered(),
             figlet,
             new Rule("[bold magenta]P O R T F O L I O   A N A L Y T I C S[/]").RuleStyle("magenta").Centered(),
@@ -24,10 +25,10 @@ public static class Display
             new Rule().RuleStyle("cyan").Centered()
         );
 
-        var panel = new Panel(content).Border(BoxBorder.None).Expand();
+        Panel panel = new Panel(content).Border(BoxBorder.None).Expand();
         AnsiConsole.Write(new Align(panel, HorizontalAlignment.Center, VerticalAlignment.Middle));
-        
-        Console.ReadLine();
+
+        _ = Console.ReadLine();
     }
 
     public static async Task<T?> ShowSplashScreen<T>(Func<Task<T?>> fetchData)
@@ -36,14 +37,15 @@ public static class Display
         T? result = default;
         Exception? fetchError = null;
 
-        var figlet = new FigletText("ARK TRACKER").Centered().Color(Color.Cyan1);
-        
-        await AnsiConsole.Live(new Text("")) 
+        FigletText figlet = new FigletText("ARK TRACKER").Centered().Color(Color.Cyan1);
+
+        await AnsiConsole.Live(new Text(""))
             .StartAsync(async ctx =>
             {
-                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                
-                var fetchTask = Task.Run(async () => {
+                Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+                Task<T?> fetchTask = Task.Run(async () =>
+                {
                     try { return await fetchData(); }
                     catch (Exception ex) { fetchError = ex; return default; }
                 });
@@ -63,9 +65,9 @@ public static class Display
 
                     int totalFrames = 16;
                     int currentFrame = (int)(i / 100.0 * totalFrames);
-                    var spinner = GetMultiLineSpinnerFrame(currentFrame);
+                    IRenderable spinner = GetMultiLineSpinnerFrame(currentFrame);
 
-                    var content = new Rows(
+                    Rows content = new(
                         new Rule().RuleStyle("cyan").Centered(),
                         figlet,
                         new Rule("[bold magenta]P O R T F O L I O   A N A L Y T I C S[/]").RuleStyle("magenta").Centered(),
@@ -79,44 +81,64 @@ public static class Display
                         new Rule().RuleStyle("cyan").Centered()
                     );
 
-                    var container = new Panel(content).Border(BoxBorder.None).Expand();
+                    Panel container = new Panel(content).Border(BoxBorder.None).Expand();
                     ctx.UpdateTarget(new Align(container, HorizontalAlignment.Center, VerticalAlignment.Middle));
-                    
+
                     i += 2;
-                    await Task.Delay(6); 
+                    await Task.Delay(6);
                 }
 
                 result = await fetchTask;
-                
-                var remaining = 300 - stopwatch.ElapsedMilliseconds;
-                if (remaining > 0) await Task.Delay((int)remaining);
+
+                long remaining = 300 - stopwatch.ElapsedMilliseconds;
+                if (remaining > 0)
+                {
+                    await Task.Delay((int)remaining);
+                }
             });
 
         AnsiConsole.Clear();
-        if (fetchError != null) throw fetchError;
-        return result;
+        return fetchError != null ? throw fetchError : result;
     }
 
     private static IRenderable GetMultiLineSpinnerFrame(int step)
     {
-        var grid = new Grid();
-        for (int c = 0; c < 5; c++) grid.AddColumn(new GridColumn().NoWrap().Centered());
+        Grid grid = new();
+        for (int c = 0; c < 5; c++)
+        {
+            _ = grid.AddColumn(new GridColumn().NoWrap().Centered());
+        }
 
-        List<(int r, int c)> ring = new List<(int r, int c)>();
-        for (int c = 0; c < 5; c++) ring.Add((0, c));
-        for (int r = 1; r < 5; r++) ring.Add((r, 4));
-        for (int c = 3; c >= 0; c--) ring.Add((4, c));
-        for (int r = 3; r >= 1; r--) ring.Add((r, 0));
+        List<(int r, int c)> ring = [];
+        for (int c = 0; c < 5; c++)
+        {
+            ring.Add((0, c));
+        }
 
-        var colors = new[] { "cyan1", "springgreen3", "yellow1", "orange1", "red1", "magenta1", "purple3", "dodgerblue1" };
-        
+        for (int r = 1; r < 5; r++)
+        {
+            ring.Add((r, 4));
+        }
+
+        for (int c = 3; c >= 0; c--)
+        {
+            ring.Add((4, c));
+        }
+
+        for (int r = 3; r >= 1; r--)
+        {
+            ring.Add((r, 0));
+        }
+
+        string[] colors = new[] { "cyan1", "springgreen3", "yellow1", "orange1", "red1", "magenta1", "purple3", "dodgerblue1" };
+
         int activeIdx = step % ring.Count;
-        var active = ring[activeIdx];
+        (int r, int c) active = ring[activeIdx];
         string activeColor = colors[step % colors.Length];
 
         for (int r = 0; r < 5; r++)
         {
-            var row = new List<string>();
+            List<string> row = [];
             for (int c = 0; c < 5; c++)
             {
                 if (r == active.r && c == active.c)
@@ -136,7 +158,7 @@ public static class Display
                     row.Add("[grey15]·[/]");
                 }
             }
-            grid.AddRow(row.ToArray());
+            _ = grid.AddRow(row.ToArray());
         }
 
         return grid;
@@ -145,8 +167,8 @@ public static class Display
     public static void RenderHeader()
     {
         AnsiConsole.Clear();
-        var figlet = new FigletText("ARK TRACKER").Centered();
-        
+        FigletText figlet = new FigletText("ARK TRACKER").Centered();
+
         AnsiConsole.Write(new Rule().RuleStyle("cyan").Centered());
         AnsiConsole.Write(figlet.Color(Color.Cyan1));
         AnsiConsole.Write(new Rule("[bold magenta]P O R T F O L I O   A N A L Y T I C S[/]").RuleStyle("magenta").Centered());
@@ -155,20 +177,24 @@ public static class Display
 
     public static void RenderComparisonTable(ComparisonResult result, string title, string sortBy = "Ticker")
     {
-        var items = new List<DisplayRow>();
+        List<DisplayRow> items = [];
 
-        foreach (var h in result.NewPositions) 
-            items.Add(new DisplayRow("NEW", h.Ticker, h.Company, h.Shares, h.Weight, "teal"));
-        
-        foreach (var h in result.Increased) 
-            items.Add(new DisplayRow("UP", h.Ticker, h.Company, h.NewShares - h.OldShares, h.NewWeight, "green"));
-        
-        foreach (var h in result.Reduced)
+        foreach (SimpleHolding h in result.NewPositions)
         {
-            var isClosed = h.IsClosed;
+            items.Add(new DisplayRow("NEW", h.Ticker, h.Company, h.Shares, h.Weight, "teal"));
+        }
+
+        foreach (HoldingDelta h in result.Increased)
+        {
+            items.Add(new DisplayRow("UP", h.Ticker, h.Company, h.NewShares - h.OldShares, h.NewWeight, "green"));
+        }
+
+        foreach (HoldingDelta h in result.Reduced)
+        {
+            bool isClosed = h.IsClosed;
             items.Add(new DisplayRow(
-                isClosed ? "CLOSED" : "DOWN", 
-                h.Ticker, h.Company, h.NewShares - h.OldShares, h.NewWeight, 
+                isClosed ? "CLOSED" : "DOWN",
+                h.Ticker, h.Company, h.NewShares - h.OldShares, h.NewWeight,
                 isClosed ? "red" : "orange1"));
         }
 
@@ -181,21 +207,21 @@ public static class Display
             _ => items.OrderBy(x => x.Ticker).ToList()
         };
 
-        var table = new Table()
+        Table table = new Table()
             .Border(TableBorder.Rounded)
             .Title($"[bold white]{title}[/]")
             .Caption($"[grey]Sorted by: {sortBy} | Colors: [teal]New[/] | [green]Up[/] | [orange1]Down[/] | [red]Closed[/][/]")
             .Expand();
 
-        table.AddColumn("[bold]Change[/]");
-        table.AddColumn("[bold]Ticker[/]");
-        table.AddColumn("[bold]Company[/]");
-        table.AddColumn(new TableColumn("[bold]Shares Change[/]").RightAligned());
-        table.AddColumn(new TableColumn("[bold]Weight[/]").RightAligned());
+        _ = table.AddColumn("[bold]Change[/]");
+        _ = table.AddColumn("[bold]Ticker[/]");
+        _ = table.AddColumn("[bold]Company[/]");
+        _ = table.AddColumn(new TableColumn("[bold]Shares Change[/]").RightAligned());
+        _ = table.AddColumn(new TableColumn("[bold]Weight[/]").RightAligned());
 
-        foreach (var item in items)
+        foreach (DisplayRow item in items)
         {
-            table.AddRow(
+            _ = table.AddRow(
                 $"[{item.Color}]{item.Status}[/]",
                 $"[bold white]{Markup.Escape(item.Ticker)}[/]",
                 Markup.Escape(item.Company),
@@ -212,7 +238,7 @@ public static class Display
         {
             AnsiConsole.Write(table);
         }
-        
+
         AnsiConsole.WriteLine();
     }
 
@@ -226,9 +252,9 @@ public static class Display
             return null;
         }
 
-        var fromDates = availableDates.OrderBy(d => d).ToList();
-        
-        var fromDate = AnsiConsole.Prompt(
+        List<DateTime> fromDates = availableDates.OrderBy(d => d).ToList();
+
+        DateTime fromDate = AnsiConsole.Prompt(
             new SelectionPrompt<DateTime>()
                 .Title("Select the [bold teal]Start Date[/]:")
                 .PageSize(10)
@@ -237,7 +263,7 @@ public static class Display
                 .UseConverter(d => d.ToString("dd. MM. yyyy"))
                 .AddChoices(fromDates));
 
-        var toDates = availableDates
+        List<DateTime> toDates = availableDates
             .Where(d => d > fromDate)
             .OrderByDescending(d => d)
             .ToList();
@@ -248,7 +274,7 @@ public static class Display
             return null;
         }
 
-        var toDate = AnsiConsole.Prompt(
+        DateTime toDate = AnsiConsole.Prompt(
             new SelectionPrompt<DateTime>()
                 .Title("Select the [bold teal]End Date[/]:")
                 .PageSize(10)
@@ -262,29 +288,31 @@ public static class Display
 
     public static void ShowError(string message)
     {
-        var panel = new Panel($"[red]{Markup.Escape(message)}[/]")
+        Panel panel = new Panel($"[red]{Markup.Escape(message)}[/]")
             .Header("[bold red] ERROR [/]")
             .BorderColor(Color.Red)
             .Padding(1, 1, 1, 1);
-        
+
         AnsiConsole.Write(panel);
     }
 
     public static (string username, string password) PromptForLogin()
     {
-        var username = AnsiConsole.Prompt(
+        string username = AnsiConsole.Prompt(
             new TextPrompt<string>("Enter [cyan]username[/] (leave empty to exit):")
                 .PromptStyle("cyan")
                 .AllowEmpty());
-        
-        if (string.IsNullOrWhiteSpace(username))
-            return (string.Empty, string.Empty);
 
-        var password = AnsiConsole.Prompt(
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            return (string.Empty, string.Empty);
+        }
+
+        string password = AnsiConsole.Prompt(
             new TextPrompt<string>("Enter [cyan]password[/]:")
                 .PromptStyle("cyan")
                 .Secret());
-                
+
         return (username, password);
     }
 }

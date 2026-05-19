@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -11,12 +11,29 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
-defaults:
-  run:
-    working-directory: ArkTracker
+env:
+  WORKING_DIRECTORY: ArkTracker
+  CLI_CSPROJ: ArkTracker/Arktracker.Cli/Arktracker.Cli.csproj 
+  API_CSPROJ: ArkTracker/Arktracker.Api/Arktracker.Api.csproj
+  CLI_BINARY_NAME: Arktracker.Cli.exe
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Verify Code Formatting
+        run: dotnet format ${{ env.WORKING_DIRECTORY }} --verify-no-changes
+
   build-and-test:
+    needs: lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -28,10 +45,58 @@ jobs:
           dotnet-version: "10.0.x"
 
       - name: Restore
-        run: dotnet restore ArkTracker.sln
+        run: dotnet restore ${{ env.WORKING_DIRECTORY }}/ArkTracker.sln
 
       - name: Build
-        run: dotnet build ArkTracker.sln --configuration Release --no-restore
+        run: dotnet build ${{ env.WORKING_DIRECTORY }}/ArkTracker.sln --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test ArkTracker.sln --configuration Release --no-build --verbosity normal
+        run: dotnet test ${{ env.WORKING_DIRECTORY }}/ArkTracker.sln --configuration Release --no-build --verbosity normal
+
+  publish-and-release:
+    needs: build-and-test
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Publish CLI
+        run: dotnet publish ${{ env.CLI_CSPROJ }} -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishReadyToRun=true -p:PublishTrimmed=true -o ./publish/cli
+
+      - name: Publish API
+        run: dotnet publish ${{ env.API_CSPROJ }} -c Release -o ./publish/api
+
+      - name: Zip API
+        run: |
+          cd ./publish/api
+          zip -r ../../Arktracker-Api.zip .
+          cd ../..
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: |
+            ./publish/cli/${{ env.CLI_BINARY_NAME }}
+            Arktracker-Api.zip
+          retention-days: 14
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "ArkTracker ${{ github.ref_name }}"
+          tag_name: ${{ github.ref_name }}
+          description: "Automatický build verze ${{ github.ref_name }}."
+          files: |
+            ./publish/cli/${{ env.CLI_BINARY_NAME }}
+            Arktracker-Api.zip
+          draft: false
+          prerelease: false

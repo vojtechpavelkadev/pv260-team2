@@ -5,26 +5,26 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 
-var environmentName = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ??
+string environmentName = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ??
     Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ??
     "Production";
 
-var configuration = new ConfigurationBuilder()
+IConfigurationRoot configuration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .AddJsonFile($"appsettings.{environmentName}.json", optional: true, reloadOnChange: true)
     .AddEnvironmentVariables()
     .Build();
 
-var services = new ServiceCollection();
-services.AddHttpClient<IArkApiClient, ArkApiClient>(client => 
+ServiceCollection services = new();
+services.AddHttpClient<IArkApiClient, ArkApiClient>(client =>
 {
-    var baseUrl = configuration["ArkApi:BaseUrl"] ?? "http://localhost:5185/api/";
+    string baseUrl = configuration["ArkApi:BaseUrl"] ?? "http://localhost:5185/api/";
     client.BaseAddress = new Uri(baseUrl);
 });
 
-using var serviceProvider = services.BuildServiceProvider();
-var apiClient = serviceProvider.GetRequiredService<IArkApiClient>();
+using ServiceProvider serviceProvider = services.BuildServiceProvider();
+IArkApiClient apiClient = serviceProvider.GetRequiredService<IArkApiClient>();
 
 string currentSortBy = "Ticker";
 ComparisonResult? lastResult = null;
@@ -35,8 +35,8 @@ Display.ShowWelcomeScreen();
 bool authenticated = false;
 while (!authenticated)
 {
-    var (username, password) = Display.PromptForLogin();
-    
+    (string? username, string? password) = Display.PromptForLogin();
+
     // Allow exit if username is empty
     if (string.IsNullOrWhiteSpace(username))
     {
@@ -44,9 +44,9 @@ while (!authenticated)
         return;
     }
 
-    try 
+    try
     {
-        var token = await apiClient.LoginAsync(username, password);
+        string? token = await apiClient.LoginAsync(username, password);
         if (token != null)
         {
             authenticated = true;
@@ -82,12 +82,15 @@ if (lastResult != null)
 
 while (true)
 {
-    var choice = AnsiConsole.Prompt(
+    string choice = AnsiConsole.Prompt(
         new SelectionPrompt<string>()
             .Title("[grey]What would you like to do?[/]")
             .AddChoices(["Compare Specific Dates", "Change Sort Order", "Refresh Latest", "Exit"]));
 
-    if (choice == "Exit") break;
+    if (choice == "Exit")
+    {
+        break;
+    }
 
     if (choice == "Change Sort Order")
     {
@@ -95,9 +98,13 @@ while (true)
             new SelectionPrompt<string>()
                 .Title("Sort by:")
                 .AddChoices(["Ticker", "Company", "Weight", "Change Amount"]));
-        
+
         Display.RenderHeader();
-        if (lastResult != null) Display.RenderComparisonTable(lastResult, lastTitle, currentSortBy);
+        if (lastResult != null)
+        {
+            Display.RenderComparisonTable(lastResult, lastTitle, currentSortBy);
+        }
+
         continue;
     }
 
@@ -107,7 +114,7 @@ while (true)
         {
             lastResult = await Display.ShowSplashScreen(() => apiClient.GetComparisonAsync());
             lastTitle = "Latest Portfolio Changes (LTM)";
-            
+
             if (lastResult != null)
             {
                 Display.RenderHeader();
@@ -125,16 +132,16 @@ while (true)
     {
         try
         {
-            var availableDates = await apiClient.GetAvailableDatesAsync();
-            var selected = Display.PromptForDates(availableDates);
-            
+            List<DateTime> availableDates = await apiClient.GetAvailableDatesAsync();
+            (DateTime from, DateTime to)? selected = Display.PromptForDates(availableDates);
+
             if (selected.HasValue)
             {
-                lastResult = await Display.ShowSplashScreen(() => 
+                lastResult = await Display.ShowSplashScreen(() =>
                     apiClient.GetComparisonAsync(selected.Value.from, selected.Value.to));
-                
+
                 lastTitle = $"Comparison: {selected.Value.from:dd. MM. yyyy} vs {selected.Value.to:dd. MM. yyyy}";
-                
+
                 if (lastResult != null)
                 {
                     Display.RenderHeader();

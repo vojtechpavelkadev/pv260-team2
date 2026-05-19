@@ -1,4 +1,3 @@
-using ArkTracker.Application;
 using ArkTracker.Application.CompareHoldings;
 using ArkTracker.Application.GetAvailableHoldingDates;
 using MediatR;
@@ -25,19 +24,19 @@ public class HoldingsController : ControllerBase
         [FromQuery] DateTime? to,
         CancellationToken cancellationToken)
     {
-        var fromUtc = from?.ToUniversalTime();
-        var toUtc = to?.ToUniversalTime();
-        var result = await _mediator.Send(
+        DateTime? fromUtc = from?.ToUniversalTime();
+        DateTime? toUtc = to?.ToUniversalTime();
+        CompareHoldingsResult result = await _mediator.Send(
             new CompareHoldingsQuery(fromUtc, toUtc),
             cancellationToken);
 
         return Ok(result);
     }
-    
+
     [HttpGet("dates")]
     public async Task<IActionResult> GetDates(CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(
+        GetAvailableHoldingDatesResult result = await _mediator.Send(
             new GetAvailableHoldingDatesQuery(),
             cancellationToken);
 
