@@ -34,18 +34,16 @@ public sealed class ArkScraperService(HttpClient httpClient, IConfiguration conf
 
         DateTime ingestedAtUtc = DateTime.UtcNow;
 
-        return rows.Select(r => new HoldingRecord
-        {
-            Date = ParseDate(r.Date),
-            Fund = NullIfWhiteSpace(r.Fund),
-            Company = NullIfWhiteSpace(r.Company),
-            Ticker = NullIfWhiteSpace(r.Ticker),
-            Cusip = NullIfWhiteSpace(r.Cusip),
-            Shares = ParseLong(r.Shares),
-            MarketValue = ParseDecimal(r.MarketValue),
-            WeightPercentage = ParseDecimal(r.WeightPercentage),
-            IngestedAtUtc = ingestedAtUtc
-        }).ToList();
+        return rows.Select(r => new HoldingRecord(
+            ParseDate(r.Date),
+            NullIfWhiteSpace(r.Fund),
+            NullIfWhiteSpace(r.Company),
+            NullIfWhiteSpace(r.Ticker),
+            NullIfWhiteSpace(r.Cusip),
+            ParseLong(r.Shares),
+            ParseDecimal(r.MarketValue),
+            ParseDecimal(r.WeightPercentage)
+        )).ToList();
     }
 
     private static string? NullIfWhiteSpace(string? value)
