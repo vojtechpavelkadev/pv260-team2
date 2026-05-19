@@ -100,3 +100,31 @@ jobs:
             Arktracker-Api.zip
           draft: false
           prerelease: false
+
+  deploy-pages:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    
+    permissions:
+      pages: write
+      id-token: write
+      
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+      
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload static files
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: '${{ env.WORKING_DIRECTORY }}/ArkTracker.Web/wwwroot'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
