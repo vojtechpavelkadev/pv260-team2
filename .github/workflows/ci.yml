@@ -14,9 +14,9 @@ concurrency:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   WORKING_DIRECTORY: ArkTracker
-  CLI_CSPROJ: ArkTracker/Arktracker.Cli/Arktracker.Cli.csproj 
-  API_CSPROJ: ArkTracker/Arktracker.Api/Arktracker.Api.csproj
-  CLI_BINARY_NAME: Arktracker.Cli.exe
+  CLI_CSPROJ: ArkTracker/ArkTracker.Cli/ArkTracker.Cli.csproj
+  API_CSPROJ: ArkTracker/ArkTracker.Api/ArkTracker.Api.csproj
+  CLI_BINARY_NAME: ArkTracker.Cli.exe
 
 jobs:
   lint:
