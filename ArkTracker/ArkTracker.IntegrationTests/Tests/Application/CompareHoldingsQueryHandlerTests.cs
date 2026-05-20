@@ -1,5 +1,6 @@
 using ArkTracker.Application.CompareHoldings;
 using ArkTracker.Domain.Entities;
+using ArkTracker.Domain.Exceptions;
 using ArkTracker.Infrastructure.Persistence;
 using ArkTracker.IntegrationTests.Fixtures;
 using FluentAssertions;
@@ -44,7 +45,7 @@ namespace ArkTracker.IntegrationTests.Tests.Application
             Func<Task> act = async () => await _handler.Handle(query, CancellationToken.None);
 
             // Assert
-            await act.Should().ThrowAsync<Exception>().WithMessage("Not enough data to compare.");
+            await act.Should().ThrowAsync<InsufficientHoldingsDataException>().WithMessage("Not enough data to compare.");
         }
 
         [Fact]
