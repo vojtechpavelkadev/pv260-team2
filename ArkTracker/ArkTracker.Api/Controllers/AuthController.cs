@@ -1,9 +1,7 @@
+using ArkTracker.Application.Interfaces;
 using ArkTracker.Domain.Entities;
-using ArkTracker.Infrastructure.Persistence;
-using ArkTracker.Infrastructure.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -15,12 +13,12 @@ namespace ArkTracker.Api.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly AppDbContext _db;
+    private readonly IAuthenticationService _authenticationService;
     private readonly IConfiguration _config;
 
-    public AuthController(AppDbContext db, IConfiguration config)
+    public AuthController(IAuthenticationService authenticationService, IConfiguration config)
     {
-        _db = db;
+        _authenticationService = authenticationService;
         _config = config;
     }
 
@@ -34,9 +32,9 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        User? user = await _db.Users.SingleOrDefaultAsync(u => u.Username == request.Username);
+        User? user = await _authenticationService.AuthenticateAsync(request.Username, request.Password);
 
-        if (user == null || !PasswordHasher.VerifyPassword(request.Password, user.PasswordHash))
+        if (user == null)
         {
             return Unauthorized(new { message = "Invalid username or password" });
         }
