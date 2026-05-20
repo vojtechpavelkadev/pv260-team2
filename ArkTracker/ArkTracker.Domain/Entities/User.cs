@@ -1,3 +1,5 @@
+using ArkTracker.Domain.Exceptions;
+
 namespace ArkTracker.Domain.Entities
 {
     public class User
@@ -11,9 +13,9 @@ namespace ArkTracker.Domain.Entities
         public User(string username, string passwordHash)
         {
             if (string.IsNullOrWhiteSpace(username))
-                throw new ArgumentException("Username cannot be empty.");
+                throw new DomainValidationException("Username cannot be empty.");
             if (string.IsNullOrWhiteSpace(passwordHash))
-                throw new ArgumentException("Password hash cannot be empty.");
+                throw new DomainValidationException("Password hash cannot be empty.");
 
             Id = Guid.NewGuid();
             Username = username;
