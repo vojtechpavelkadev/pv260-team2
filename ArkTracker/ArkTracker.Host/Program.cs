@@ -1,5 +1,6 @@
 using ArkTracker.Api.Jobs;
 using ArkTracker.Application;
+using ArkTracker.Domain.Exceptions;
 using ArkTracker.Application.CompareHoldings;
 using ArkTracker.Application.GetAvailableHoldingDates;
 using ArkTracker.Application.Interfaces;
@@ -44,9 +45,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
-string jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is missing from configuration.");
-string jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT Issuer is missing from configuration.");
-string jwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new InvalidOperationException("JWT Audience is missing from configuration.");
+string jwtKey = builder.Configuration["Jwt:Key"] ?? throw new ConfigurationException("JWT Key is missing from configuration.");
+string jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? throw new ConfigurationException("JWT Issuer is missing from configuration.");
+string jwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new ConfigurationException("JWT Audience is missing from configuration.");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -96,7 +97,7 @@ using (IServiceScope scope = app.Services.CreateScope())
 
     if (app.Environment.IsDevelopment())
     {
-        DbSeeder.Seed(db);
+        await DbSeeder.SeedAsync(db);
     }
 }
 
@@ -109,16 +110,32 @@ app.UseExceptionHandler(errorApp =>
         Exception? exception = context.Features
             .Get<IExceptionHandlerFeature>()?.Error;
 
+        if (exception is not null)
+        {
+            ILogger<Program> logger = context.RequestServices
+                .GetRequiredService<ILogger<Program>>();
+            logger.LogError(exception, "Unhandled exception");
+        }
+
         context.Response.StatusCode = exception switch
         {
-            FluentValidation.ValidationException => 400,
-            _ => 500
+            FluentValidation.ValidationException => StatusCodes.Status400BadRequest,
+            DomainValidationException => StatusCodes.Status400BadRequest,
+            InsufficientHoldingsDataException => StatusCodes.Status404NotFound,
+            DatabaseConnectionException => StatusCodes.Status503ServiceUnavailable,
+            ConfigurationException => StatusCodes.Status500InternalServerError,
+            ArkTrackerException => StatusCodes.Status500InternalServerError,
+            _ => StatusCodes.Status500InternalServerError
         };
 
-        await context.Response.WriteAsJsonAsync(new
+        string errorMessage = exception switch
         {
-            error = exception?.Message
-        });
+            ArkTrackerException arkEx => arkEx.Message,
+            FluentValidation.ValidationException validationEx => validationEx.Message,
+            _ => "An unexpected error occurred."
+        };
+
+        await context.Response.WriteAsJsonAsync(new { error = errorMessage });
     });
 });
 
