@@ -14,7 +14,7 @@ concurrency:
 env:
   WORKING_DIRECTORY: ArkTracker
   CLI_CSPROJ: ArkTracker/ArkTracker.Cli/ArkTracker.Cli.csproj
-  API_CSPROJ: ArkTracker/ArkTracker.Api/ArkTracker.Api.csproj
+  API_CSPROJ: ArkTracker/ArkTracker.Host/ArkTracker.Host.csproj
   CLI_BINARY_NAME: ArkTracker.Cli.exe
   APP_VERSION: ""
 
