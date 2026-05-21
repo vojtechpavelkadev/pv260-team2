@@ -12,11 +12,19 @@ public sealed class ArkHoldingsIngestionJob(
     {
         logger.LogInformation("Starting ARKK holdings ingestion job.");
 
-        IEnumerable<ArkTracker.Domain.Entities.HoldingRecord> records = await arkScraperService.DownloadHoldingsAsync();
-        List<ArkTracker.Domain.Entities.HoldingRecord> list = records.ToList();
+        try
+        {
+            IEnumerable<ArkTracker.Domain.Entities.HoldingRecord> records = await arkScraperService.DownloadHoldingsAsync();
+            List<ArkTracker.Domain.Entities.HoldingRecord> list = records.ToList();
 
-        await holdingRepository.AddRangeAsync(list);
-        logger.LogInformation("ARKK holdings ingestion job saved {Count} records.", list.Count);
+            await holdingRepository.AddRangeAsync(list);
+            logger.LogInformation("ARKK holdings ingestion job saved {Count} records.", list.Count);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred during the ARKK holdings ingestion job.");
+            throw new JobExecutionException(ex, refireImmediately: false);
+        }
     }
 }
 

@@ -15,4 +15,8 @@
     <ProjectReference Include="../ArkTracker.Domain/ArkTracker.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.6.0" />
+  </ItemGroup>
+
 </Project>

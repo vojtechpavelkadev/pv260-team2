@@ -15,6 +15,8 @@ using Microsoft.IdentityModel.Tokens;
 using Quartz;
 using Scalar.AspNetCore;
 using System.Text;
+using Microsoft.Extensions.Http.Resilience;
+using Microsoft.Extensions.DependencyInjection;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +26,8 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connect
 builder.Services.AddScoped<IHoldingRepository, HoldingRepository>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IDatabaseHealthService, DatabaseHealthService>();
-builder.Services.AddHttpClient<IArkScraperService, ArkScraperService>();
+builder.Services.AddHttpClient<IArkScraperService, ArkScraperService>()
+    .AddStandardResilienceHandler();
 
 builder.Services.AddOptions<ArkTracker.Infrastructure.Configuration.ArkScraperOptions>()
     .Bind(builder.Configuration.GetSection("ArkScraper"))
