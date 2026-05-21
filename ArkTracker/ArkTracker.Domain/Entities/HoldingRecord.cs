@@ -1,3 +1,5 @@
+using ArkTracker.Domain.Exceptions;
+
 namespace ArkTracker.Domain.Entities
 {
     public class HoldingRecord
@@ -26,10 +28,10 @@ namespace ArkTracker.Domain.Entities
             decimal? weightPercentage)
         {
             if (shares.HasValue && shares.Value < 0)
-                throw new ArgumentException("Number of shares cannot be negative.");
+                throw new DomainValidationException("Number of shares cannot be negative.");
 
             if (date.HasValue && date.Value < DateTime.UtcNow.AddYears(-3))
-                throw new ArgumentException("Date cannot be older than 3 years.");
+                throw new DomainValidationException("Date cannot be older than 3 years.");
 
             Id = Guid.NewGuid();
             Date = date;
@@ -46,7 +48,7 @@ namespace ArkTracker.Domain.Entities
         public void UpdateShares(long newShares)
         {
             if (newShares < 0)
-                throw new ArgumentException("Number of shares cannot be negative.");
+                throw new DomainValidationException("Number of shares cannot be negative.");
             Shares = newShares;
         }
 

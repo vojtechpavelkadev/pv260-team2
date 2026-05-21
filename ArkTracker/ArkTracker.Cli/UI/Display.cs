@@ -1,4 +1,5 @@
 using ArkTracker.Cli.Models;
+using ArkTracker.Domain.Exceptions;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 using System.Diagnostics;
@@ -35,7 +36,7 @@ public static class Display
     {
         AnsiConsole.Clear();
         T? result = default;
-        Exception? fetchError = null;
+        ArkTrackerException? fetchError = null;
 
         FigletText figlet = new FigletText("ARK TRACKER").Centered().Color(Color.Cyan1);
 
@@ -47,7 +48,17 @@ public static class Display
                 Task<T?> fetchTask = Task.Run(async () =>
                 {
                     try { return await fetchData(); }
-                    catch (Exception ex) { fetchError = ex; return default; }
+                    catch (ArkTrackerException ex) { fetchError = ex; return default; }
+                    catch (HttpRequestException ex)
+                    {
+                        fetchError = new ApiException(ex.Message, ex);
+                        return default;
+                    }
+                    catch (TaskCanceledException ex)
+                    {
+                        fetchError = new ApiException("Request timed out.", ex);
+                        return default;
+                    }
                 });
 
                 int i = 0;

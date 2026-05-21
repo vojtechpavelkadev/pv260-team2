@@ -10,7 +10,7 @@ using System.IO;
 
 namespace ArkTracker.IntegrationTests.Fixtures
 {
-    public class ApiWebApplicationFactory : WebApplicationFactory<Program>
+    public class ApiWebApplicationFactory : WebApplicationFactory<global::Program>
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {

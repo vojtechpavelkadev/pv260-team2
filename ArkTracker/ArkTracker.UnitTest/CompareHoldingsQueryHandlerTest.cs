@@ -1,6 +1,7 @@
 using ArkTracker.Application.CompareHoldings;
 using ArkTracker.Application.Interfaces;
 using ArkTracker.Domain.Entities;
+using ArkTracker.Domain.Exceptions;
 using ArkTracker.Domain.ValueObjects;
 using FluentAssertions;
 using Moq;
@@ -144,7 +145,7 @@ public class CompareHoldingsQueryHandlerTests
                 new DateTime(2026, 04, 20)
             ]);
 
-        _ = await Assert.ThrowsAsync<Exception>(() =>
+        _ = await Assert.ThrowsAsync<InsufficientHoldingsDataException>(() =>
             _handler.Handle(new CompareHoldingsQuery(null, null), CancellationToken.None));
     }
 
