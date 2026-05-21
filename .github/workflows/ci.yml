@@ -165,13 +165,16 @@ jobs:
           key: ${{ secrets.AZURE_VM_SSH_KEY }}
           script: |
             echo "Zastavuji službu API..."
-            sudo systemctl stop arktracker-api.service
+            sudo systemctl stop arktracker.service || true
             
             echo "Rozbaluji novou verzi..."
-            sudo unzip -o /tmp/Arktracker-Api.zip -d /var/www/arktracker-api/
+            sudo unzip -o /tmp/downloaded-artifacts/Arktracker-Api.zip -d /home/azureuser/publish
+            
+            echo "Opravuji práva k souborům..."
+            sudo chown -R azureuser:azureuser /home/azureuser/publish
             
             echo "Spouštím službu API..."
-            sudo systemctl start arktracker-api.service
+            sudo systemctl start arktracker.service
             
             echo "Úklid..."
-            rm /tmp/Arktracker-Api.zip
+            rm -rf /tmp/downloaded-artifacts
