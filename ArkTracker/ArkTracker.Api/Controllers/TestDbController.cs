@@ -1,21 +1,20 @@
-using ArkTracker.Infrastructure.Persistence;
+using ArkTracker.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ArkTracker.Api.Controllers
 {
     [Authorize]
     [ApiController]
     [Route("api/test-db")]
-    public class TestDbController(AppDbContext context) : ControllerBase
+    public class TestDbController(IDatabaseHealthService databaseHealthService) : ControllerBase
     {
         [HttpGet("check")]
         public async Task<IActionResult> CheckConnection()
         {
             try
             {
-                int userCount = await context.Users.CountAsync();
+                int userCount = await databaseHealthService.GetUserCountAsync();
                 return Ok(new { Message = "Spojení s NeonDB je OK!", Count = userCount });
             }
             catch (Exception ex)
