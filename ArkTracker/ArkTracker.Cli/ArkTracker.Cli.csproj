@@ -12,6 +12,10 @@
       <Content Include="ark.ico" />
     </ItemGroup>
 
+	<ItemGroup>
+		<Content Update="appsettings.Development.json" CopyToPublishDirectory="Never" Condition="'$(Configuration)' == 'Release'" />
+	</ItemGroup>
+
     <ItemGroup>
       <ProjectReference Include="..\ArkTracker.Domain\ArkTracker.Domain.csproj" />
     </ItemGroup>
