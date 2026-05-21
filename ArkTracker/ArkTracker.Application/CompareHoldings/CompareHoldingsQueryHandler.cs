@@ -1,5 +1,6 @@
 using ArkTracker.Application.Interfaces;
 using ArkTracker.Domain.Entities;
+using ArkTracker.Domain.Exceptions;
 using ArkTracker.Domain.Services;
 using ArkTracker.Domain.ValueObjects;
 using MediatR;
@@ -35,7 +36,7 @@ public class CompareHoldingsQueryHandler
 
             if (latestTwo.Count < NumberOfDatesToCompare)
             {
-                throw new Exception("Not enough data to compare.");
+                throw new InsufficientHoldingsDataException("Not enough data to compare.");
             }
 
             from = latestTwo[1];

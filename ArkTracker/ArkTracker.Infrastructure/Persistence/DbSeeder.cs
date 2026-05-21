@@ -4,7 +4,7 @@ namespace ArkTracker.Infrastructure.Persistence;
 
 public static class DbSeeder
 {
-    public static void Seed(AppDbContext db)
+    public static async Task SeedAsync(AppDbContext db, CancellationToken cancellationToken = default)
     {
         if (!db.Users.Any())
         {
@@ -12,7 +12,7 @@ public static class DbSeeder
                 "test",
                 Security.PasswordHasher.HashPassword("password123")
             ));
-            db.SaveChanges();
+            await db.SaveChangesAsync(cancellationToken);
         }
 
         if (db.Holdings.Any())
@@ -95,6 +95,6 @@ public static class DbSeeder
         Add("2026-04-20", "AMZN", "Amazon", 597381, 2.12m);
 
         db.Holdings.AddRange(data);
-        db.SaveChanges();
+        await db.SaveChangesAsync(cancellationToken);
     }
 }

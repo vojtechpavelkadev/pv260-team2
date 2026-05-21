@@ -1,5 +1,6 @@
 using ArkTracker.Application.Interfaces;
 using ArkTracker.Domain.Entities;
+using ArkTracker.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -40,7 +41,7 @@ public class AuthController : ControllerBase
         }
 
         JwtSecurityTokenHandler tokenHandler = new();
-        string jwtKey = _config["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured.");
+        string jwtKey = _config["Jwt:Key"] ?? throw new ConfigurationException("JWT Key is not configured.");
         byte[] key = Encoding.UTF8.GetBytes(jwtKey);
 
         SecurityTokenDescriptor tokenDescriptor = new()
@@ -51,8 +52,8 @@ public class AuthController : ControllerBase
                 new Claim(ClaimTypes.Name, user.Username)
             }),
             Expires = DateTime.UtcNow.AddDays(7),
-            Issuer = _config["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT Issuer is not configured."),
-            Audience = _config["Jwt:Audience"] ?? throw new InvalidOperationException("JWT Audience is not configured."),
+            Issuer = _config["Jwt:Issuer"] ?? throw new ConfigurationException("JWT Issuer is not configured."),
+            Audience = _config["Jwt:Audience"] ?? throw new ConfigurationException("JWT Audience is not configured."),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
 
