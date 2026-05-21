@@ -1,6 +1,7 @@
 using ArkTracker.Cli.Models;
 using ArkTracker.Cli.Services;
 using ArkTracker.Cli.UI;
+using ArkTracker.Domain.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
@@ -58,9 +59,19 @@ while (!authenticated)
             Display.ShowError("Invalid credentials. Please try again.");
         }
     }
-    catch (Exception ex)
+    catch (ArkTrackerException ex)
     {
-        Display.ShowError($"Login failed: {ex.Message}");
+        CliExceptionHandler.ShowCliError(ex, "Login failed");
+        AnsiConsole.MarkupLine("[grey]Please ensure the API is running and try again, or press Enter on username to exit.[/]");
+    }
+    catch (HttpRequestException ex)
+    {
+        CliExceptionHandler.ShowCliError(ex, "Login failed");
+        AnsiConsole.MarkupLine("[grey]Please ensure the API is running and try again, or press Enter on username to exit.[/]");
+    }
+    catch (TaskCanceledException ex)
+    {
+        CliExceptionHandler.ShowCliError(ex, "Login failed");
         AnsiConsole.MarkupLine("[grey]Please ensure the API is running and try again, or press Enter on username to exit.[/]");
     }
 }
@@ -69,9 +80,17 @@ try
 {
     lastResult = await Display.ShowSplashScreen(() => apiClient.GetComparisonAsync());
 }
-catch (Exception ex)
+catch (ArkTrackerException ex)
 {
-    Display.ShowError($"Initial fetch failed: {ex.Message}");
+    CliExceptionHandler.ShowCliError(ex, "Initial fetch failed");
+}
+catch (HttpRequestException ex)
+{
+    CliExceptionHandler.ShowCliError(ex, "Initial fetch failed");
+}
+catch (TaskCanceledException ex)
+{
+    CliExceptionHandler.ShowCliError(ex, "Initial fetch failed");
 }
 
 if (lastResult != null)
@@ -121,9 +140,17 @@ while (true)
                 Display.RenderComparisonTable(lastResult, lastTitle, currentSortBy);
             }
         }
-        catch (Exception ex)
+        catch (ArkTrackerException ex)
         {
-            Display.ShowError($"Refresh failed: {ex.Message}");
+            CliExceptionHandler.ShowCliError(ex, "Refresh failed");
+        }
+        catch (HttpRequestException ex)
+        {
+            CliExceptionHandler.ShowCliError(ex, "Refresh failed");
+        }
+        catch (TaskCanceledException ex)
+        {
+            CliExceptionHandler.ShowCliError(ex, "Refresh failed");
         }
         continue;
     }
@@ -149,9 +176,17 @@ while (true)
                 }
             }
         }
-        catch (Exception ex)
+        catch (ArkTrackerException ex)
         {
-            Display.ShowError($"Operation failed: {ex.Message}");
+            CliExceptionHandler.ShowCliError(ex, "Operation failed");
+        }
+        catch (HttpRequestException ex)
+        {
+            CliExceptionHandler.ShowCliError(ex, "Operation failed");
+        }
+        catch (TaskCanceledException ex)
+        {
+            CliExceptionHandler.ShowCliError(ex, "Operation failed");
         }
     }
 }

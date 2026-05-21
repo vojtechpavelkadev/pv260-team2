@@ -33,8 +33,8 @@ namespace ArkTracker.IntegrationTests.Tests.Data
             // Arrange
             var records = new List<HoldingRecord>
             {
-                new HoldingRecord { Date = DateTime.UtcNow.Date, Ticker = "TEST1", Shares = 100 },
-                new HoldingRecord { Date = DateTime.UtcNow.Date, Ticker = "TEST2", Shares = 200 }
+                new HoldingRecord(DateTime.UtcNow.Date, null, null, "TEST1", null, 100, null, null),
+                new HoldingRecord(DateTime.UtcNow.Date, null, null, "TEST2", null, 200, null, null)
             };
 
             // Act
@@ -48,13 +48,13 @@ namespace ArkTracker.IntegrationTests.Tests.Data
         public async Task GetAvailableDatesAsync_ShouldReturnDistinctOrderedDates()
         {
             // Arrange
-            var date1 = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            var date2 = new DateTime(2023, 1, 3, 0, 0, 0, DateTimeKind.Utc);
+            var date1 = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var date2 = new DateTime(2026, 1, 3, 0, 0, 0, DateTimeKind.Utc);
 
             _fixture.Context.Holdings.AddRange(
-                new HoldingRecord { Date = date1 },
-                new HoldingRecord { Date = date2 },
-                new HoldingRecord { Date = date1 }
+                new HoldingRecord(date1, null, null, null, null, null, null, null),
+                new HoldingRecord(date2, null, null, null, null, null, null, null),
+                new HoldingRecord(date1, null, null, null, null, null, null, null)
             );
             await _fixture.Context.SaveChangesAsync();
 
@@ -71,12 +71,12 @@ namespace ArkTracker.IntegrationTests.Tests.Data
         public async Task GetByDateAsync_ShouldReturnCorrectRecords()
         {
             // Arrange
-            var targetDate = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            var otherDate = new DateTime(2023, 1, 2, 0, 0, 0, DateTimeKind.Utc);
+            var targetDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var otherDate = new DateTime(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc);
 
             _fixture.Context.Holdings.AddRange(
-                new HoldingRecord { Date = targetDate, Ticker = "TARGET" },
-                new HoldingRecord { Date = otherDate, Ticker = "OTHER" }
+                new HoldingRecord(targetDate, null, null, "TARGET", null, null, null, null),
+                new HoldingRecord(otherDate, null, null, "OTHER", null, null, null, null)
             );
             await _fixture.Context.SaveChangesAsync();
 

@@ -4,16 +4,16 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using System.Globalization;
 using CsvHelper.Configuration.Attributes;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using ArkTracker.Infrastructure.Configuration;
 
 namespace ArkTracker.Infrastructure.Services;
 
-public sealed class ArkScraperService(HttpClient httpClient, IConfiguration configuration) : IArkScraperService
+public sealed class ArkScraperService(HttpClient httpClient, IOptions<ArkScraperOptions> options) : IArkScraperService
 {
     public async Task<IEnumerable<HoldingRecord>> DownloadHoldingsAsync()
     {
-        string url = configuration["ArkScraper:Url"]
-            ?? "https://assets.ark-funds.com/fund-documents/funds-etf-csv/ARK_INNOVATION_ETF_ARKK_HOLDINGS.csv";
+        string url = options.Value.Url;
 
         using HttpResponseMessage response = await httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
@@ -34,18 +34,16 @@ public sealed class ArkScraperService(HttpClient httpClient, IConfiguration conf
 
         DateTime ingestedAtUtc = DateTime.UtcNow;
 
-        return rows.Select(r => new HoldingRecord
-        {
-            Date = ParseDate(r.Date),
-            Fund = NullIfWhiteSpace(r.Fund),
-            Company = NullIfWhiteSpace(r.Company),
-            Ticker = NullIfWhiteSpace(r.Ticker),
-            Cusip = NullIfWhiteSpace(r.Cusip),
-            Shares = ParseLong(r.Shares),
-            MarketValue = ParseDecimal(r.MarketValue),
-            WeightPercentage = ParseDecimal(r.WeightPercentage),
-            IngestedAtUtc = ingestedAtUtc
-        }).ToList();
+        return rows.Select(r => new HoldingRecord(
+            ParseDate(r.Date),
+            NullIfWhiteSpace(r.Fund),
+            NullIfWhiteSpace(r.Company),
+            NullIfWhiteSpace(r.Ticker),
+            NullIfWhiteSpace(r.Cusip),
+            ParseLong(r.Shares),
+            ParseDecimal(r.MarketValue),
+            ParseDecimal(r.WeightPercentage)
+        )).ToList();
     }
 
     private static string? NullIfWhiteSpace(string? value)

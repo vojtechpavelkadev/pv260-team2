@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
+    <OutputType>Library</OutputType>
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -20,7 +21,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\ArkTracker.Application\ArkTracker.Application.csproj" />
-      <ProjectReference Include="..\ArkTracker.Infrastructure\ArkTracker.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

@@ -4,17 +4,15 @@ namespace ArkTracker.Infrastructure.Persistence;
 
 public static class DbSeeder
 {
-    public static void Seed(AppDbContext db)
+    public static async Task SeedAsync(AppDbContext db, CancellationToken cancellationToken = default)
     {
         if (!db.Users.Any())
         {
-            db.Users.Add(new User
-            {
-                Id = Guid.NewGuid(),
-                Username = "test",
-                PasswordHash = Security.PasswordHasher.HashPassword("password123")
-            });
-            db.SaveChanges();
+            db.Users.Add(new User(
+                "test",
+                Security.PasswordHasher.HashPassword("password123")
+            ));
+            await db.SaveChangesAsync(cancellationToken);
         }
 
         if (db.Holdings.Any())
@@ -24,16 +22,16 @@ public static class DbSeeder
 
         void Add(string date, string ticker, string company, long shares, decimal weight)
         {
-            data.Add(new HoldingRecord
-            {
-                Id = Guid.NewGuid(),
-                Date = DateTime.Parse(date).ToUniversalTime(),
-                Fund = "ARKK",
-                Ticker = ticker,
-                Company = company,
-                Shares = shares,
-                WeightPercentage = weight
-            });
+            data.Add(new HoldingRecord(
+                DateTime.Parse(date).ToUniversalTime(),
+                "ARKK",
+                company,
+                ticker,
+                null,
+                shares,
+                null,
+                weight
+            ));
         }
 
         // DAY 1 - 2026-04-16
@@ -97,6 +95,6 @@ public static class DbSeeder
         Add("2026-04-20", "AMZN", "Amazon", 597381, 2.12m);
 
         db.Holdings.AddRange(data);
-        db.SaveChanges();
+        await db.SaveChangesAsync(cancellationToken);
     }
 }

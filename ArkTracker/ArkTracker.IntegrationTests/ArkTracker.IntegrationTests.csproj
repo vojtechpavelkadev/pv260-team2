@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ArkTracker.Api\ArkTracker.Api.csproj" />
+    <ProjectReference Include="..\ArkTracker.Host\ArkTracker.Host.csproj" />
     <ProjectReference Include="..\ArkTracker.Application\ArkTracker.Application.csproj" />
     <ProjectReference Include="..\ArkTracker.Infrastructure\ArkTracker.Infrastructure.csproj" />
     <ProjectReference Include="..\ArkTracker.Domain\ArkTracker.Domain.csproj" />

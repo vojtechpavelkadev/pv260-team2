@@ -1,6 +1,8 @@
 using ArkTracker.Application.CompareHoldings;
 using ArkTracker.Application.Interfaces;
 using ArkTracker.Domain.Entities;
+using ArkTracker.Domain.Exceptions;
+using ArkTracker.Domain.ValueObjects;
 using FluentAssertions;
 using Moq;
 namespace ArkTracker.UnitTest;
@@ -25,13 +27,13 @@ public class CompareHoldingsQueryHandlerTests
         _ = _repoMock.Setup(r => r.GetByDateAsync(from))
             .ReturnsAsync(
             [
-                new() { Ticker = "TSLA", Company = "Tesla", Shares = 100, WeightPercentage = 5 }
+                new HoldingRecord(from, null, "Tesla", "TSLA", null, 100, null, 5)
             ]);
 
         _ = _repoMock.Setup(r => r.GetByDateAsync(to))
             .ReturnsAsync(
             [
-                new() { Ticker = "TSLA", Company = "Tesla", Shares = 150, WeightPercentage = 6 }
+                new HoldingRecord(to, null, "Tesla", "TSLA", null, 150, null, 6)
             ]);
 
         CompareHoldingsQuery query = new(from, to);
@@ -55,7 +57,7 @@ public class CompareHoldingsQueryHandlerTests
         _ = _repoMock.Setup(r => r.GetByDateAsync(to))
             .ReturnsAsync(
             [
-                new() { Ticker = "NVDA", Company = "Nvidia", Shares = 200 }
+                new HoldingRecord(to, null, "Nvidia", "NVDA", null, 200, null, null)
             ]);
 
         CompareHoldingsResult result = await _handler.Handle(
@@ -74,13 +76,13 @@ public class CompareHoldingsQueryHandlerTests
         _ = _repoMock.Setup(r => r.GetByDateAsync(from))
             .ReturnsAsync(
             [
-                new() { Ticker = "TSLA", Company = "Tesla", Shares = 200 }
+                new HoldingRecord(from, null, "Tesla", "TSLA", null, 200, null, null)
             ]);
 
         _ = _repoMock.Setup(r => r.GetByDateAsync(to))
             .ReturnsAsync(
             [
-                new() { Ticker = "TSLA", Company = "Tesla", Shares = 50 }
+                new HoldingRecord(to, null, "Tesla", "TSLA", null, 50, null, null)
             ]);
 
         CompareHoldingsResult result = await _handler.Handle(
@@ -98,7 +100,7 @@ public class CompareHoldingsQueryHandlerTests
         _ = _repoMock.Setup(r => r.GetByDateAsync(from))
             .ReturnsAsync(
             [
-                new() { Ticker = "TSLA", Company = "Tesla", Shares = 100 }
+                new HoldingRecord(from, null, "Tesla", "TSLA", null, 100, null, null)
             ]);
 
         _ = _repoMock.Setup(r => r.GetByDateAsync(to))
@@ -143,7 +145,7 @@ public class CompareHoldingsQueryHandlerTests
                 new DateTime(2026, 04, 20)
             ]);
 
-        _ = await Assert.ThrowsAsync<Exception>(() =>
+        _ = await Assert.ThrowsAsync<InsufficientHoldingsDataException>(() =>
             _handler.Handle(new CompareHoldingsQuery(null, null), CancellationToken.None));
     }
 
@@ -174,7 +176,7 @@ public class CompareHoldingsQueryHandlerTests
 
         List<HoldingRecord> holdings =
         [
-            new() { Ticker = "TSLA", Shares = 100 }
+            new HoldingRecord(from, null, null, "TSLA", null, 100, null, null)
         ];
 
         _ = _repoMock.Setup(r => r.GetByDateAsync(from)).ReturnsAsync(holdings);

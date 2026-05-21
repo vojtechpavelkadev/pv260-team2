@@ -1,9 +1,8 @@
+using ArkTracker.Application.Interfaces;
 using ArkTracker.Domain.Entities;
-using ArkTracker.Infrastructure.Persistence;
-using ArkTracker.Infrastructure.Security;
+using ArkTracker.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -15,12 +14,12 @@ namespace ArkTracker.Api.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly AppDbContext _db;
+    private readonly IAuthenticationService _authenticationService;
     private readonly IConfiguration _config;
 
-    public AuthController(AppDbContext db, IConfiguration config)
+    public AuthController(IAuthenticationService authenticationService, IConfiguration config)
     {
-        _db = db;
+        _authenticationService = authenticationService;
         _config = config;
     }
 
@@ -34,15 +33,15 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        User? user = await _db.Users.SingleOrDefaultAsync(u => u.Username == request.Username);
+        User? user = await _authenticationService.AuthenticateAsync(request.Username, request.Password);
 
-        if (user == null || !PasswordHasher.VerifyPassword(request.Password, user.PasswordHash))
+        if (user == null)
         {
             return Unauthorized(new { message = "Invalid username or password" });
         }
 
         JwtSecurityTokenHandler tokenHandler = new();
-        string jwtKey = _config["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured.");
+        string jwtKey = _config["Jwt:Key"] ?? throw new ConfigurationException("JWT Key is not configured.");
         byte[] key = Encoding.UTF8.GetBytes(jwtKey);
 
         SecurityTokenDescriptor tokenDescriptor = new()
@@ -53,8 +52,8 @@ public class AuthController : ControllerBase
                 new Claim(ClaimTypes.Name, user.Username)
             }),
             Expires = DateTime.UtcNow.AddDays(7),
-            Issuer = _config["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT Issuer is not configured."),
-            Audience = _config["Jwt:Audience"] ?? throw new InvalidOperationException("JWT Audience is not configured."),
+            Issuer = _config["Jwt:Issuer"] ?? throw new ConfigurationException("JWT Issuer is not configured."),
+            Audience = _config["Jwt:Audience"] ?? throw new ConfigurationException("JWT Audience is not configured."),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
 
