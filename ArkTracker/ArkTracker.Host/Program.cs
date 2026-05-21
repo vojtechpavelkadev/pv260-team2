@@ -26,6 +26,11 @@ builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IDatabaseHealthService, DatabaseHealthService>();
 builder.Services.AddHttpClient<IArkScraperService, ArkScraperService>();
 
+builder.Services.AddOptions<ArkTracker.Infrastructure.Configuration.ArkScraperOptions>()
+    .Bind(builder.Configuration.GetSection("ArkScraper"))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
 string ingestionCron = builder.Configuration.GetValue<string>("Quartz:IngestionCron") ?? "0 30 11 * * ?";
 
 builder.Services.AddQuartz(q =>

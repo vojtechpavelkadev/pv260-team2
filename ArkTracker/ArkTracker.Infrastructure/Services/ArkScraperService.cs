@@ -4,16 +4,16 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using System.Globalization;
 using CsvHelper.Configuration.Attributes;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using ArkTracker.Infrastructure.Configuration;
 
 namespace ArkTracker.Infrastructure.Services;
 
-public sealed class ArkScraperService(HttpClient httpClient, IConfiguration configuration) : IArkScraperService
+public sealed class ArkScraperService(HttpClient httpClient, IOptions<ArkScraperOptions> options) : IArkScraperService
 {
     public async Task<IEnumerable<HoldingRecord>> DownloadHoldingsAsync()
     {
-        string url = configuration["ArkScraper:Url"]
-            ?? "https://assets.ark-funds.com/fund-documents/funds-etf-csv/ARK_INNOVATION_ETF_ARKK_HOLDINGS.csv";
+        string url = options.Value.Url;
 
         using HttpResponseMessage response = await httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
