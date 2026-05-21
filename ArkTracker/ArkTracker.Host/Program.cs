@@ -151,9 +151,9 @@ app.UseAuthorization();
 
 app.MapGet("/version", () =>
 {
-    string version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+    string version = Environment.GetEnvironmentVariable("APP_VERSION")
+        ?? Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
         ?? Assembly.GetEntryAssembly()?.GetName().Version?.ToString()
-        ?? Environment.GetEnvironmentVariable("APP_VERSION")
         ?? "unknown";
 
     return Results.Ok(new { version });
