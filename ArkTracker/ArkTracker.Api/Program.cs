@@ -5,6 +5,9 @@ using ArkTracker.Application.GetAvailableHoldingDates;
 using ArkTracker.Application.Interfaces;
 using ArkTracker.Infrastructure.Persistence;
 using ArkTracker.Infrastructure.Services;
+using ArkTracker.Infrastructure.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Http.Resilience;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -20,7 +23,13 @@ string? connectionString = builder.Configuration.GetConnectionString("DefaultCon
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddScoped<IHoldingRepository, HoldingRepository>();
-builder.Services.AddHttpClient<IArkScraperService, ArkScraperService>();
+builder.Services.AddOptions<ArkScraperOptions>()
+    .BindConfiguration("ArkScraper")
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+builder.Services.AddHttpClient<IArkScraperService, ArkScraperService>()
+    .AddStandardResilienceHandler();
 
 string ingestionCron = builder.Configuration.GetValue<string>("Quartz:IngestionCron") ?? "0 30 11 * * ?";
 
