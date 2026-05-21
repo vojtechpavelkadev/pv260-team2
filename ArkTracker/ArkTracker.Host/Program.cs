@@ -14,9 +14,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Quartz;
 using Scalar.AspNetCore;
+using System.Reflection;
 using System.Text;
-using Microsoft.Extensions.Http.Resilience;
-using Microsoft.Extensions.DependencyInjection;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -149,6 +148,17 @@ app.UseExceptionHandler(errorApp =>
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapGet("/version", () =>
+{
+    string version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+        ?? Assembly.GetEntryAssembly()?.GetName().Version?.ToString()
+        ?? Environment.GetEnvironmentVariable("APP_VERSION")
+        ?? "unknown";
+
+    return Results.Ok(new { version });
+})
+.AllowAnonymous();
 
 app.MapControllers();
 app.Run();
